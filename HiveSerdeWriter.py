@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class HiveRow(object):
     def __init__(self):
         self._cols = {}
@@ -36,6 +37,7 @@ class HiveSerdeWriter():
         self.collection_item_terminator = '\002'
         self.map_key_terminator = '\003'
         self.line_terminator = '\n'
+        self.unicode_encoding = 'utf-8'
     def dumps(self, obj):
         ret = ''
         if type(obj) == HiveRow:
@@ -47,8 +49,11 @@ class HiveSerdeWriter():
             ret = self.collection_item_terminator.join( [self.dumps(ele) for ele in obj] )
         elif type(obj) == type({}):
             ret = self.collection_item_terminator.join( [self.dumps(k) + self.map_key_terminator + self.dumps(v) for k, v in obj.items()] )
+        elif type(obj) == unicode:
+            return obj.encode(self.unicode_encoding)
         elif obj == None:
             return ''
+         
         else:
             ret = str(obj)
         return ret
@@ -60,7 +65,7 @@ if __name__ == "__main__":
     print type(hs)
     hs.setFields(["field1", "field2"])
     hs.setValue("field1", "hs-value1")
-    hs.setValue("field2", "hs-value2")
+    hs.setValue("field2", u"汉字")
     writer = HiveSerdeWriter()
     hr.setCols(["col1", "col2", "col3", "col4", "col5"])
     hr.setCell("col1", 123)
